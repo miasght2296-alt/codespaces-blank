@@ -1,0 +1,487 @@
+<!DOCTYPE html>
+<html lang="vi">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>BẮN XE TANK ESPORT</title>
+    <style>
+        :root {
+            --bg: #111;
+            --box: #222;
+            --text: #fff;
+            --btn: #34495e;
+            --btn-act: #e74c3c;
+            --border: #333;
+        }
+
+        .light-mode {
+            --bg: #ecf0f1;
+            --box: #fff;
+            --text: #2c3e50;
+            --btn: #bdc3c7;
+            --btn-act: #e67e22;
+            --border: #95a5a6;
+        }
+
+        * {
+            -webkit-touch-callout: none;
+            -webkit-user-select: none;
+            user-select: none;
+            touch-action: none;
+            outline: none;
+            box-sizing: border-box;
+        }
+
+        body {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            margin: 0;
+            background: var(--bg);
+            color: var(--text);
+            font-family: sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            transition: background 0.3s;
+        }
+
+        .screen {
+            display: none;
+            width: 100%;
+            height: 100%;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .active {
+            display: flex;
+        }
+
+        .menu-box {
+            text-align: center;
+            background: var(--box);
+            padding: 20px;
+            border-radius: 15px;
+            border: 2px solid var(--border);
+            max-width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        h1,
+        h2 {
+            color: #f39c12;
+            margin-top: 0;
+            text-transform: uppercase;
+        }
+
+        button,
+        .btn-action {
+            background: var(--btn);
+            color: var(--text);
+            border: 2px solid var(--border);
+            padding: 12px;
+            margin: 8px 0;
+            font-size: 16px;
+            border-radius: 8px;
+            font-weight: bold;
+            width: 100%;
+            transition: transform 0.1s;
+            cursor: pointer;
+        }
+
+        button:active,
+        .btn-action:active {
+            background: var(--btn-act);
+            transform: scale(0.95);
+        }
+
+        .input-code {
+            background: var(--bg);
+            color: var(--text);
+            border: 2px solid var(--border);
+            padding: 12px;
+            font-size: 18px;
+            border-radius: 8px;
+            width: 100%;
+            text-align: center;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+        }
+
+        .tank-options {
+            display: flex;
+            justify-content: space-around;
+            gap: 10px;
+            margin: 15px 0;
+        }
+
+        .tank-card {
+            background: var(--bg);
+            border: 3px solid var(--border);
+            padding: 10px;
+            border-radius: 10px;
+            width: 45%;
+            cursor: pointer;
+        }
+
+        .tank-card.selected {
+            border-color: #f1c40f;
+        }
+
+        .tank-img {
+            height: 50px;
+            width: 100%;
+        }
+
+        canvas {
+            background: #27ae60;
+            border: 3px solid var(--border);
+            border-radius: 10px;
+            width: 95vw;
+            height: 95vw;
+            max-width: 400px;
+            max-height: 400px;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.5);
+        }
+
+        .game-layout {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            justify-content: center;
+            height: 100%;
+            gap: 10px;
+        }
+
+        .controls {
+            display: flex;
+            width: 100%;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 20px;
+        }
+
+        .joystick-zone {
+            width: 120px;
+            height: 120px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 2px solid #555;
+            border-radius: 50%;
+            position: relative;
+        }
+
+        .joystick-knob {
+            width: 50px;
+            height: 50px;
+            background: rgba(255, 255, 255, 0.4);
+            border-radius: 50%;
+            position: absolute;
+            top: 35px;
+            left: 35px;
+        }
+
+        .btn-shoot {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            background: #c0392b;
+            border: 3px solid #e74c3c;
+            font-weight: bold;
+            color: white;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 18px;
+            transition: transform 0.1s;
+        }
+
+        .btn-shoot:active {
+            background: #e74c3c;
+            transform: scale(0.9);
+        }
+
+        .top-bar {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            right: 10px;
+            display: flex;
+            justify-content: space-between;
+            z-index: 50;
+        }
+
+        .icon-btn {
+            font-size: 24px;
+            background: rgba(0, 0, 0, 0.5);
+            border: none;
+            padding: 10px;
+            border-radius: 50%;
+            color: white;
+            line-height: 1;
+        }
+
+        .modal {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 200;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: var(--box);
+            padding: 20px;
+            border-radius: 10px;
+            width: 80%;
+            text-align: center;
+            border: 2px solid var(--border);
+        }
+
+        .slider-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin: 15px 0;
+        }
+
+        input[type="range"] {
+            width: 60%;
+        }
+
+        /* POPUP KẾT THÚC CẢI TIẾN */
+        #gameOverModal {
+            display: none;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0, 0, 0, 0.95);
+            border: 2px solid #f1c40f;
+            padding: 25px;
+            border-radius: 15px;
+            text-align: center;
+            z-index: 300;
+            min-width: 300px;
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
+        }
+
+        #goTitle {
+            font-size: 26px;
+            margin: 0 0 10px 0;
+        }
+
+        #goEval {
+            font-size: 15px;
+            color: #bdc3c7;
+            font-style: italic;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .win-text {
+            color: #2ecc71;
+            text-shadow: 0 0 10px #2ecc71;
+        }
+
+        .lose-text {
+            color: #e74c3c;
+            text-shadow: 0 0 10px #e74c3c;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .btn-group button {
+            margin: 0;
+        }
+
+        #matchmakingModal {
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.9);
+            z-index: 200;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid #333;
+            border-top: 5px solid #f39c12;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-bottom: 20px;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (orientation: landscape) {
+            .game-layout {
+                flex-direction: row;
+                justify-content: space-between;
+                padding: 0 50px;
+            }
+
+            canvas {
+                height: 85vh;
+                width: 85vh;
+                max-width: 45vw;
+            }
+
+            .joystick-zone {
+                transform: scale(1.2);
+            }
+
+            .btn-shoot {
+                transform: scale(1.2);
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <div class="top-bar">
+        <div id="status" style="color:yellow; font-weight:bold; font-size: 14px; align-self: center;"></div>
+        <button class="icon-btn" onclick="openSettings()">⚙️</button>
+    </div>
+
+    <div id="modalSettings" class="modal">
+        <div class="modal-content">
+            <h2>CÀI ĐẶT</h2>
+            <div class="slider-row">
+                <span id="muteIcon" onclick="toggleMute()" style="font-size:24px; cursor:pointer;">🔊</span>
+                <input type="range" id="volSlider" min="0" max="100" value="100" onchange="changeVol()">
+            </div>
+            <button class="btn-action" onclick="toggleTheme()">Đổi Nền (Tối/Sáng)</button>
+            <button class="btn-action" onclick="closeSettings()" style="background:#27ae60;">Tiếp tục</button>
+            <button class="btn-action" onclick="quitGame()" style="background:#c0392b;">Thoát Về Sảnh</button>
+        </div>
+    </div>
+
+    <div id="screenMode" class="screen active">
+        <div class="menu-box">
+            <h1>BẮN XE TANK</h1>
+            <button onclick="selectMode('pvp')">Tạo Phòng Kín</button>
+            <button onclick="showJoinRoom()">Vào Bằng Mã Code</button>
+            <button onclick="selectMode('random')" style="background:#8e44ad">Ghép Ngẫu Nhiên 🌍</button>
+            <button onclick="selectMode('pve')">Bắn Với Máy</button>
+        </div>
+    </div>
+
+    <div id="screenJoin" class="screen">
+        <div class="menu-box">
+            <h1>VÀO PHÒNG</h1>
+            <input type="text" id="roomCodeInp" class="input-code" placeholder="MÃ PHÒNG (VD: ABC12)">
+            <button onclick="joinRoomByCode()">VÀO!</button>
+            <button onclick="showScreen('screenMode')">Quay Lại</button>
+        </div>
+    </div>
+
+    <div id="screenDifficulty" class="screen">
+        <div class="menu-box">
+            <h1>CHỌN ĐỘ KHÓ</h1>
+            <button onclick="selectDiff('easy')">Dễ</button>
+            <button onclick="selectDiff('normal')">Vừa</button>
+            <button onclick="selectDiff('hard')">Khó</button>
+            <button onclick="showScreen('screenMode')">Quay lại</button>
+        </div>
+    </div>
+
+    <div id="screenTank" class="screen">
+        <div class="menu-box">
+            <h1>CHỌN XE</h1>
+            <div class="tank-options">
+                <div class="tank-card selected" id="card-T01" onclick="myConfig.tank='T01'; updateTankUI()"><svg
+                        viewBox="0 0 50 50" class="tank-img">
+                        <rect x="10" y="10" width="30" height="6" fill="#111" />
+                        <rect x="10" y="34" width="30" height="6" fill="#111" />
+                        <rect x="12" y="15" width="26" height="20" fill="#2d3436" rx="2" />
+                        <rect x="22" y="10" width="8" height="22" fill="#1e272e" />
+                        <rect x="24" y="0" width="4" height="20" fill="#636e72" />
+                        <rect x="12" y="15" width="4" height="20" fill="#e74c3c" />
+                        <circle cx="26" cy="21" r="5" fill="#e74c3c" />
+                    </svg>
+                    <h3>Hắc Sói</h3>
+                </div>
+                <div class="tank-card" id="card-T02" onclick="myConfig.tank='T02'; updateTankUI()"><svg
+                        viewBox="0 0 50 50" class="tank-img">
+                        <rect x="8" y="12" width="34" height="5" fill="#2c3e50" />
+                        <rect x="8" y="33" width="34" height="5" fill="#2c3e50" />
+                        <rect x="10" y="14" width="30" height="22" fill="#4b5320" rx="4" />
+                        <rect x="20" y="10" width="10" height="18" fill="#3a4216" rx="5" />
+                        <rect x="23" y="0" width="4" height="15" fill="#556b2f" />
+                        <polygon points="25,15 27,19 31,19 28,22 29,26 25,24 21,26 22,22 19,19 23,19" fill="#ecf0f1" />
+                    </svg>
+                    <h3>Camo</h3>
+                </div>
+            </div>
+            <button onclick="startGame()">VÀO TRẬN!</button>
+            <button onclick="showScreen('screenMode')">Quay lại</button>
+        </div>
+    </div>
+
+    <div id="screenGame" class="screen">
+        <div id="matchmakingModal">
+            <div class="spinner"></div>
+            <h2 id="matchTitle" style="color: #f1c40f;">ĐANG GHÉP TRẬN...</h2>
+            <p id="matchSub">Hãy gửi link cho bạn bè nhé!</p>
+            <button style="width: 200px;" onclick="cancelMatch()">Hủy / Quay lại</button>
+        </div>
+
+        <div id="gameOverModal">
+            <h2 id="goTitle"></h2>
+            <p id="goEval"></p>
+            <div class="btn-group">
+                <button onclick="playAgain()" style="background:#27ae60;">Chơi Lại</button>
+                <button onclick="backToMenu()" style="background:#c0392b;">Về Sảnh</button>
+            </div>
+        </div>
+
+        <div class="game-layout">
+            <div class="joystick-zone" id="joystickZone">
+                <div class="joystick-knob" id="joystickKnob"></div>
+            </div>
+            <canvas id="gameCanvas" width="400" height="400"></canvas>
+            <div class="btn-shoot" id="btnShoot">BẮN</div>
+        </div>
+    </div>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="game.js"></script>
+</body>
+
+</html>
